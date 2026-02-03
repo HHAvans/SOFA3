@@ -79,6 +79,7 @@ namespace SOFA3.Domain
         public void export(TicketExportFormat exportFormat)
         {
             StringBuilder sb = new StringBuilder($"Export of {this.orderNr}", 1000);
+            var format = "txt";
 
             if (exportFormat == TicketExportFormat.PLAINTEXT)
             {
@@ -88,13 +89,15 @@ namespace SOFA3.Domain
                 }
             } else if (exportFormat == TicketExportFormat.JSON)
             {
+                format = "json";
+
                 string json = JsonSerializer.Serialize(this, new JsonSerializerOptions
                 {
                     WriteIndented = true
                 });
             }
 
-            File.WriteAllText(@"C:\Temp\movie.json", sb.ToString());
+            File.WriteAllText(@$"C:\Temp\movie.{format}", sb.ToString());
         }
     }
 }
