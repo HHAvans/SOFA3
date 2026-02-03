@@ -39,7 +39,7 @@ namespace SOFA3.Domain
                 return 0.0;
             }
 
-            var ticketsToCalculate = this.movieTickets;
+            var ticketsToCalculate = new List<MovieTicket>(this.movieTickets);
             var currentDay = this.movieTickets.First().movieScreening.dateAndTime.DayOfWeek;
             var isWeekend = (currentDay == DayOfWeek.Friday || currentDay == DayOfWeek.Saturday || currentDay == DayOfWeek.Sunday);
 
@@ -83,7 +83,8 @@ namespace SOFA3.Domain
         public void export(TicketExportFormat exportFormat)
         {
             StringBuilder sb = new StringBuilder($"Export of {this.orderNr}", 1000);
-            var format = "txt";
+            sb.AppendLine();
+            sb.AppendLine();
 
             if (exportFormat == TicketExportFormat.PLAINTEXT)
             {
@@ -91,17 +92,19 @@ namespace SOFA3.Domain
                 {
                     sb.AppendLine(ticket.toString());
                 }
-            } else if (exportFormat == TicketExportFormat.JSON)
-            {
-                format = "json";
 
+                File.WriteAllText(@"C:\Users\homer\Downloads\movie.txt", sb.ToString());
+            }
+            else if (exportFormat == TicketExportFormat.JSON)
+            {
                 string json = JsonSerializer.Serialize(this, new JsonSerializerOptions
                 {
                     WriteIndented = true
                 });
-            }
 
-            File.WriteAllText(@$"C:\Temp\movie.{format}", sb.ToString());
+                File.WriteAllText(@"C:\Users\homer\Downloads\movie.json", json);
+                return;
+            }
         }
     }
 }
