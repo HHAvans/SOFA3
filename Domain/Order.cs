@@ -28,6 +28,7 @@ namespace SOFA3.Domain
 
         public void addSeatReservation(MovieTicket ticket)
         {
+            this.movieTickets.Add(ticket);
 
         }
 
@@ -45,9 +46,12 @@ namespace SOFA3.Domain
             if (!isWeekend || this.isStudentOrder)
             {
 
-                for (var i = 1; i < ticketsToCalculate.Count-1; i += 2)
+                for(int i = ticketsToCalculate.Count - 1; i >= 0; i--)
                 {
-                    ticketsToCalculate.Remove(ticketsToCalculate[i]);
+                    if(i%2 == 1)
+                    {
+                        ticketsToCalculate.RemoveAt(i);
+                    }
                 }
             }
 

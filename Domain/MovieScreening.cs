@@ -7,7 +7,7 @@ namespace SOFA3.Domain
     {
         public DateTime dateAndTime { get; set; }
         private double pricePerSeat { get; set; }
-        private List<MovieTicket> ticketList { get; set; }
+        private List<MovieTicket> ticketList = new List<MovieTicket>();
         private Movie movie { get; set; }
 
         public MovieScreening(Movie movie, DateTime dateAndTime, double pricePerSeat)

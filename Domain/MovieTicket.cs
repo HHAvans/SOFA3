@@ -13,7 +13,7 @@ namespace SOFA3.Domain
         private bool isPremium { get; set; }
         public MovieScreening movieScreening { get; set; }
 
-        MovieTicket(MovieScreening movieScreening, bool isPremiumReservation, int rowNr, int seatNr)
+        public MovieTicket(MovieScreening movieScreening, bool isPremiumReservation, int rowNr, int seatNr)
         {
             this.isPremium = isPremiumReservation;
             this.rowNr = rowNr;
