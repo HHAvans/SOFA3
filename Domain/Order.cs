@@ -11,14 +11,22 @@ namespace SOFA3.Domain
 {
     public class Order
     {
+        // Strategy pattern stuff
+        private PriceBehavior priceBehavior;
+        private ExportBehavior exportBehavior;
+
         private int orderNr { get; set; }
         private bool isStudentOrder { get; set; }
-        private List<MovieTicket> movieTickets = new List<MovieTicket>();
+        public List<MovieTicket> movieTickets = new List<MovieTicket>();
 
         public Order(int orderNr, bool isStudentOrder)
         {
             this.orderNr = orderNr;
             this.isStudentOrder = isStudentOrder;
+
+            // default export is text
+            this.exportBehavior = new TextExportBehavior();
+            this.priceBehavior = isStudentOrder ? new StudentPreiumPriceBehavior() : new RegularPriceBehavior();
         }
 
         public int getOrderNr()
@@ -58,19 +66,7 @@ namespace SOFA3.Domain
             var totalPrice = 0.0;
             foreach (var ticket in ticketsToCalculate)
             {
-                var extraPrice = 0.0;
-                if (ticket.isPremiumTicket())
-                {
-                    if (this.isStudentOrder)
-                    {
-                        extraPrice = 2.0;
-                    }
-                    else
-                    {
-                        extraPrice = 3.0;
-                    }
-                }
-                totalPrice += ticket.getPrice() + extraPrice;
+                totalPrice += ticket.getPrice() + this.priceBehavior.extraPrice(ticket);
             }
 
             if (this.movieTickets.Count >= 6)
@@ -80,31 +76,14 @@ namespace SOFA3.Domain
             return totalPrice;
         }
 
-        public void export(TicketExportFormat exportFormat)
+        public void setExportFormat(ExportBehavior exportBehavior)
         {
-            StringBuilder sb = new StringBuilder($"Export of {this.orderNr}", 1000);
-            sb.AppendLine();
-            sb.AppendLine();
+            this.exportBehavior = exportBehavior;
+        }
 
-            if (exportFormat == TicketExportFormat.PLAINTEXT)
-            {
-                foreach (var ticket in this.movieTickets)
-                {
-                    sb.AppendLine(ticket.toString());
-                }
-
-                File.WriteAllText(@"C:\Users\homer\Downloads\movie.txt", sb.ToString());
-            }
-            else if (exportFormat == TicketExportFormat.JSON)
-            {
-                string json = JsonSerializer.Serialize(this, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
-
-                File.WriteAllText(@"C:\Users\homer\Downloads\movie.json", json);
-                return;
-            }
+        public void export()
+        {
+            this.exportBehavior.export(this);
         }
     }
 }
