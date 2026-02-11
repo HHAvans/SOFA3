@@ -12,7 +12,8 @@ namespace SOFA3.Domain
     public class Order
     {
         // Strategy pattern stuff
-        private PriceBehavior priceBehavior;
+        private PremiumBehavior premiumBehavior;
+        private DiscountBehavior discountBehavior;
         private ExportBehavior exportBehavior;
 
         private int orderNr { get; set; }
@@ -26,7 +27,16 @@ namespace SOFA3.Domain
 
             // default export is text
             this.exportBehavior = new TextExportBehavior();
-            this.priceBehavior = isStudentOrder ? new StudentPreiumPriceBehavior() : new RegularPriceBehavior();
+            if(isStudentOrder)
+            {
+                this.discountBehavior = new StudentDiscountBehavior();
+                this.premiumBehavior = new StudentPremiumPriceBehavior();
+            }
+            else
+            {
+                this.discountBehavior = new RegularDiscountBehavior();
+                this.premiumBehavior = new RegularPriceBehavior();
+            }
         }
 
         public int getOrderNr()
@@ -47,33 +57,15 @@ namespace SOFA3.Domain
                 return 0.0;
             }
 
-            var ticketsToCalculate = new List<MovieTicket>(this.movieTickets);
-            var currentDay = this.movieTickets.First().movieScreening.dateAndTime.DayOfWeek;
-            var isWeekend = (currentDay == DayOfWeek.Friday || currentDay == DayOfWeek.Saturday || currentDay == DayOfWeek.Sunday);
-
-            if (!isWeekend || this.isStudentOrder)
+            var ticketsToCharge = discountBehavior.getTicketsToCharge(this.movieTickets);
+            double total = 0;
+            foreach(var ticket in ticketsToCharge)
             {
-
-                for(int i = ticketsToCalculate.Count - 1; i >= 0; i--)
-                {
-                    if(i%2 == 1)
-                    {
-                        ticketsToCalculate.RemoveAt(i);
-                    }
-                }
+                double basePrice = ticket.getPrice();
+                double premium = ticket.isPremiumTicket() ? premiumBehavior.GetPremiumExtra() : 0.0;
+                total += basePrice + premium;
             }
-
-            var totalPrice = 0.0;
-            foreach (var ticket in ticketsToCalculate)
-            {
-                totalPrice += ticket.getPrice() + this.priceBehavior.extraPrice(ticket);
-            }
-
-            if (this.movieTickets.Count >= 6)
-            {
-                totalPrice *= 1.1;
-            }
-            return totalPrice;
+            return discountBehavior.applyAdditionalDiscount(movieTickets, total);
         }
 
         public void setExportFormat(ExportBehavior exportBehavior)

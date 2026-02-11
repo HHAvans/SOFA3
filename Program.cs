@@ -10,5 +10,5 @@ order.addSeatReservation(ticket);
 order.addSeatReservation(ticket2);
 
 Console.WriteLine(order.calculatePrice());
-order.setExportFormat(new JsonExportBehavior());
-order.export();
+//order.setExportFormat(new JsonExportBehavior());
+//order.export();
