@@ -59,7 +59,8 @@ namespace SOFA3.Domain
 
         public void cancel()
         {
-            throw new NotImplementedException();
+            order.orderObservable.notifyObserver("Cancelled");
+            this.order.setState(new CancelledState());
         }
 
         public void change(List<MovieTicket> movieTickets)
@@ -79,17 +80,19 @@ namespace SOFA3.Domain
 
             if (hoursRemaining < 12)
             {
+                order.orderObservable.notifyObserver("Cancelled");
                 order.setState(new CancelledState());
             }
             else if (hoursRemaining < 24)
             {
-                // TODO SEND REMINDER
+                order.orderObservable.notifyObserver("Message of provisional order");
                 order.setState(new ProvisionalState(order));
             }
         }
 
         public void pay()
         {
+            order.orderObservable.notifyObserver("Payed");
             order.setState(new PaidState());
         }
 
@@ -109,6 +112,7 @@ namespace SOFA3.Domain
 
         public void cancel()
         {
+            order.orderObservable.notifyObserver("Cancelled");
             order.setState(new CancelledState());
         }
 
@@ -129,17 +133,19 @@ namespace SOFA3.Domain
 
             if (hoursRemaining < 12)
             {
+                order.orderObservable.notifyObserver("Cancelled");
                 order.setState(new CancelledState());
             }
             else if (hoursRemaining < 24)
             {
-                // TODO SEND REMINDER
+                order.orderObservable.notifyObserver("Message of provisional order");
                 order.setState(new ProvisionalState(order));
             }
         }
 
         public void pay()
         {
+            order.orderObservable.notifyObserver("Payed");
             order.setState(new PaidState());
         }
 
@@ -212,6 +218,7 @@ namespace SOFA3.Domain
 
         public void submit()
         {
+            order.orderObservable.notifyObserver("Submitted");
             order.setState(new SubmittedState(order));
         }
     }

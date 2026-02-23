@@ -13,7 +13,8 @@ namespace SOFA3.Domain
     {
         private int orderNr { get; set; }
         private bool isStudentOrder { get; set; }
-        private List<MovieTicket> movieTickets = new List<MovieTicket>();
+        public Customer customer { get; set; }
+        public List<MovieTicket> movieTickets = new List<MovieTicket>();
 
         // State pattern states
         private OrderState createdState;
@@ -24,17 +25,23 @@ namespace SOFA3.Domain
 
         private OrderState state;
 
-        public Order(int orderNr, bool isStudentOrder)
+        // Observable pattern thingie
+        public OrderObservable orderObservable;
+
+        public Order(int orderNr, bool isStudentOrder, Customer customer)
         {
             this.orderNr = orderNr;
             this.isStudentOrder = isStudentOrder;
+            this.customer = customer;
 
             this.createdState = new CreatedState(this);
             this.submittedState = new SubmittedState(this);
             this.cancelledState = new CancelledState();
             this.provisionalState = new ProvisionalState(this);
             this.paidState = new PaidState();
-            this.state = createdState;
+            this.state = createdState; 
+
+            this.orderObservable = new OrderObservable(this);
         }
 
         public void setState(OrderState orderState)
