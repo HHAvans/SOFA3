@@ -15,10 +15,31 @@ namespace SOFA3.Domain
         private bool isStudentOrder { get; set; }
         private List<MovieTicket> movieTickets = new List<MovieTicket>();
 
+        // State pattern states
+        private OrderState createdState;
+        private OrderState submittedState;
+        private OrderState cancelledState;
+        private OrderState provisionalState;
+        private OrderState paidState;
+
+        private OrderState state;
+
         public Order(int orderNr, bool isStudentOrder)
         {
             this.orderNr = orderNr;
             this.isStudentOrder = isStudentOrder;
+
+            this.createdState = new CreatedState(this);
+            this.submittedState = new SubmittedState(this);
+            this.cancelledState = new CancelledState();
+            this.provisionalState = new ProvisionalState(this);
+            this.paidState = new PaidState();
+            this.state = createdState;
+        }
+
+        public void setState(OrderState orderState)
+        {
+            state = orderState;
         }
 
         public int getOrderNr()
@@ -32,6 +53,16 @@ namespace SOFA3.Domain
 
         }
 
+        public void removeAllSeatReservation()
+        {
+            this.movieTickets.Clear();
+        }
+
+        public DateTime orderDate()
+        {
+            return this.movieTickets.First().movieScreening.dateAndTime;
+        }
+
         public double calculatePrice()
         {
             if (movieTickets.Count == 0)
@@ -40,7 +71,7 @@ namespace SOFA3.Domain
             }
 
             var ticketsToCalculate = new List<MovieTicket>(this.movieTickets);
-            var currentDay = this.movieTickets.First().movieScreening.dateAndTime.DayOfWeek;
+            var currentDay = this.orderDate().DayOfWeek;
             var isWeekend = (currentDay == DayOfWeek.Friday || currentDay == DayOfWeek.Saturday || currentDay == DayOfWeek.Sunday);
 
             if (!isWeekend || this.isStudentOrder)
@@ -105,6 +136,31 @@ namespace SOFA3.Domain
                 File.WriteAllText(@"C:\Users\homer\Downloads\movie.json", json);
                 return;
             }
+        }
+
+        public void submitOrder()
+        {
+            state.submit();
+        }
+
+        public void cancelOrder()
+        {
+            state.cancel();
+        }
+
+        public void changeOrder(List<MovieTicket> movieTickets)
+        {
+            state.change(movieTickets);
+        }
+
+        public void checkDeadline()
+        {
+            state.checkDeadline();
+        }
+
+        public void payOrder()
+        {
+            state.pay();
         }
     }
 }
