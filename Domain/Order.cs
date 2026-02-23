@@ -11,13 +11,9 @@ namespace SOFA3.Domain
 {
     public class Order
     {
-        // Strategy pattern stuff
-        private PriceBehavior priceBehavior;
-        private ExportBehavior exportBehavior;
-
         private int orderNr { get; set; }
         private bool isStudentOrder { get; set; }
-        public List<MovieTicket> movieTickets = new List<MovieTicket>();
+        private List<MovieTicket> movieTickets = new List<MovieTicket>();
 
         // State pattern states
         private OrderState createdState;
@@ -81,9 +77,9 @@ namespace SOFA3.Domain
             if (!isWeekend || this.isStudentOrder)
             {
 
-                for(int i = ticketsToCalculate.Count - 1; i >= 0; i--)
+                for (int i = ticketsToCalculate.Count - 1; i >= 0; i--)
                 {
-                    if(i%2 == 1)
+                    if (i % 2 == 1)
                     {
                         ticketsToCalculate.RemoveAt(i);
                     }
@@ -93,7 +89,19 @@ namespace SOFA3.Domain
             var totalPrice = 0.0;
             foreach (var ticket in ticketsToCalculate)
             {
-                totalPrice += ticket.getPrice() + this.priceBehavior.extraPrice(ticket);
+                var extraPrice = 0.0;
+                if (ticket.isPremiumTicket())
+                {
+                    if (this.isStudentOrder)
+                    {
+                        extraPrice = 2.0;
+                    }
+                    else
+                    {
+                        extraPrice = 3.0;
+                    }
+                }
+                totalPrice += ticket.getPrice() + extraPrice;
             }
 
             if (this.movieTickets.Count >= 6)
@@ -103,10 +111,18 @@ namespace SOFA3.Domain
             return totalPrice;
         }
 
-        public void setExportFormat(ExportBehavior exportBehavior)
+        public void export(TicketExportFormat exportFormat)
         {
-            this.exportBehavior = exportBehavior;
-        }
+            StringBuilder sb = new StringBuilder($"Export of {this.orderNr}", 1000);
+            sb.AppendLine();
+            sb.AppendLine();
+
+            if (exportFormat == TicketExportFormat.PLAINTEXT)
+            {
+                foreach (var ticket in this.movieTickets)
+                {
+                    sb.AppendLine(ticket.toString());
+                }
 
                 File.WriteAllText(@"C:\Users\homer\Downloads\movie.txt", sb.ToString());
             }
